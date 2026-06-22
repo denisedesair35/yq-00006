@@ -1,0 +1,16 @@
+{
+  "name": "local-file-organizer",
+  "version": "1.0.0",
+  "description": "本地资料整理小工具 - 扫描、统计、标记文件状态",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "keywords": ["file-organizer", "local", "utility"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
