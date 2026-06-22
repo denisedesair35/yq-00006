@@ -84,6 +84,20 @@ function getStatusClass(status) {
   }
 }
 
+function updateStatusStats() {
+  const statusStats = {
+    '待处理': 0,
+    '已整理': 0,
+    '忽略': 0
+  };
+  for (const f of allFiles) {
+    statusStats[f.status] = (statusStats[f.status] || 0) + 1;
+  }
+  document.getElementById('statPending').textContent = statusStats['待处理'] || 0;
+  document.getElementById('statDone').textContent = statusStats['已整理'] || 0;
+  document.getElementById('statIgnored').textContent = statusStats['忽略'] || 0;
+}
+
 function renderFileList() {
   const fileList = document.getElementById('fileList');
   const emptyState = document.getElementById('emptyState');
@@ -253,19 +267,7 @@ async function setStatus(filePath, status) {
       if (file) {
         file.status = status;
       }
-
-      const statusStats = {
-        '待处理': 0,
-        '已整理': 0,
-        '忽略': 0
-      };
-      for (const f of allFiles) {
-        statusStats[f.status] = (statusStats[f.status] || 0) + 1;
-      }
-      document.getElementById('statPending').textContent = statusStats['待处理'] || 0;
-      document.getElementById('statDone').textContent = statusStats['已整理'] || 0;
-      document.getElementById('statIgnored').textContent = statusStats['忽略'] || 0;
-
+      updateStatusStats();
       applyFilters();
     }
   } catch (err) {
@@ -291,21 +293,11 @@ async function batchSetStatus(status) {
           file.status = status;
         }
       }
-
-      const statusStats = {
-        '待处理': 0,
-        '已整理': 0,
-        '忽略': 0
-      };
-      for (const f of allFiles) {
-        statusStats[f.status] = (statusStats[f.status] || 0) + 1;
-      }
-      document.getElementById('statPending').textContent = statusStats['待处理'] || 0;
-      document.getElementById('statDone').textContent = statusStats['已整理'] || 0;
-      document.getElementById('statIgnored').textContent = statusStats['忽略'] || 0;
-
+      selectedFiles.clear();
+      updateStatusStats();
       applyFilters();
-      alert(result.message);
+      updateSelectAllState();
+      showMessage(result.message, 'success');
     }
   } catch (err) {
     console.error('批量更新失败:', err);

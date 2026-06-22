@@ -70,6 +70,41 @@ function setStatus(folderPath, filePath, status) {
   return saveData(data);
 }
 
+function batchSetStatus(folderPath, updates) {
+  if (!Array.isArray(updates)) {
+    throw new Error('updates 必须是数组');
+  }
+
+  const data = loadData();
+  const folderKey = path.resolve(folderPath);
+  let successCount = 0;
+  let failCount = 0;
+
+  if (!data.folders[folderKey]) {
+    data.folders[folderKey] = { files: {} };
+  }
+
+  for (const update of updates) {
+    const { filePath, status } = update;
+    if (filePath && VALID_STATUSES.includes(status)) {
+      const fileKey = normalizeFilePath(filePath);
+      data.folders[folderKey].files[fileKey] = status;
+      successCount++;
+    } else {
+      failCount++;
+    }
+  }
+
+  data.folders[folderKey].updatedAt = new Date().toISOString();
+  const saved = saveData(data);
+
+  return {
+    success: saved,
+    successCount,
+    failCount
+  };
+}
+
 function getAllStatuses(folderPath) {
   const data = loadData();
   const folderKey = path.resolve(folderPath);
@@ -99,6 +134,7 @@ function getStatusStats(folderPath, files) {
 module.exports = {
   getStatus,
   setStatus,
+  batchSetStatus,
   getAllStatuses,
   getStatusStats,
   VALID_STATUSES

@@ -1,5 +1,5 @@
 const express = require('express');
-const { setStatus, getAllStatuses, VALID_STATUSES } = require('../services/statusStore');
+const { setStatus, batchSetStatus, getAllStatuses, VALID_STATUSES } = require('../services/statusStore');
 
 const router = express.Router();
 
@@ -54,28 +54,20 @@ router.post('/batch-update', (req, res) => {
       });
     }
 
-    let successCount = 0;
-    let failCount = 0;
+    const result = batchSetStatus(folderPath, updates);
 
-    for (const update of updates) {
-      const { filePath, status } = update;
-      if (filePath && VALID_STATUSES.includes(status)) {
-        try {
-          setStatus(folderPath, filePath, status);
-          successCount++;
-        } catch (err) {
-          failCount++;
-        }
-      } else {
-        failCount++;
-      }
+    if (result.success) {
+      res.json({
+        success: true,
+        message: `批量更新完成：成功 ${result.successCount} 个，失败 ${result.failCount} 个`,
+        data: { successCount: result.successCount, failCount: result.failCount }
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: '保存状态失败'
+      });
     }
-
-    res.json({
-      success: true,
-      message: `批量更新完成：成功 ${successCount} 个，失败 ${failCount} 个`,
-      data: { successCount, failCount }
-    });
   } catch (err) {
     res.status(400).json({
       success: false,
