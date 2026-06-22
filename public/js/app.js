@@ -121,10 +121,10 @@ function renderFileList() {
         <div class="file-status-col">
           <span class="status-badge ${getStatusClass(file.status)}">${file.status}</span>
         </div>
-        <div class="file-action-col">
-          ${file.status !== '已整理' ? `<button class="btn btn-status-done" onclick="setStatus('${file.path}', '已整理')">已整理</button>` : ''}
-          ${file.status !== '忽略' ? `<button class="btn btn-status-ignored" onclick="setStatus('${file.path}', '忽略')">忽略</button>` : ''}
-          ${file.status !== '待处理' ? `<button class="btn btn-status-pending" onclick="setStatus('${file.path}', '待处理')">待处理</button>` : ''}
+        <div class="file-action-col" data-action-path="${file.path}">
+          ${file.status !== '已整理' ? `<button class="btn btn-status-done" data-action="set-status" data-status="已整理">已整理</button>` : ''}
+          ${file.status !== '忽略' ? `<button class="btn btn-status-ignored" data-action="set-status" data-status="忽略">忽略</button>` : ''}
+          ${file.status !== '待处理' ? `<button class="btn btn-status-pending" data-action="set-status" data-status="待处理">待处理</button>` : ''}
         </div>
       </div>
     `;
@@ -144,6 +144,17 @@ function renderFileList() {
       }
       updateSelectAllState();
       batchActions.style.display = selectedFiles.size > 0 ? 'inline' : 'none';
+    });
+  });
+
+  fileList.querySelectorAll('button[data-action="set-status"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const actionCol = e.target.closest('[data-action-path]');
+      const filePath = actionCol ? actionCol.dataset.actionPath : '';
+      const status = e.target.dataset.status;
+      if (filePath && status) {
+        setStatus(filePath, status);
+      }
     });
   });
 }

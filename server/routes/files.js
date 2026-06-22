@@ -19,7 +19,7 @@ router.post('/scan', (req, res) => {
 
     const filesWithStatus = result.files.map(file => ({
       ...file,
-      status: statuses[file.path] || '待处理'
+      status: statuses[path.resolve(file.path)] || '待处理'
     }));
 
     res.json({

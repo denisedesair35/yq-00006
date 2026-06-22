@@ -37,11 +37,16 @@ function saveData(data) {
   }
 }
 
+function normalizeFilePath(filePath) {
+  return path.resolve(filePath);
+}
+
 function getStatus(folderPath, filePath) {
   const data = loadData();
   const folderKey = path.resolve(folderPath);
-  if (data.folders[folderKey] && data.folders[folderKey].files[filePath]) {
-    return data.folders[folderKey].files[filePath];
+  const fileKey = normalizeFilePath(filePath);
+  if (data.folders[folderKey] && data.folders[folderKey].files[fileKey]) {
+    return data.folders[folderKey].files[fileKey];
   }
   return '待处理';
 }
@@ -53,12 +58,13 @@ function setStatus(folderPath, filePath, status) {
 
   const data = loadData();
   const folderKey = path.resolve(folderPath);
+  const fileKey = normalizeFilePath(filePath);
 
   if (!data.folders[folderKey]) {
     data.folders[folderKey] = { files: {} };
   }
 
-  data.folders[folderKey].files[filePath] = status;
+  data.folders[folderKey].files[fileKey] = status;
   data.folders[folderKey].updatedAt = new Date().toISOString();
 
   return saveData(data);
@@ -82,7 +88,8 @@ function getStatusStats(folderPath, files) {
   };
 
   for (const file of files) {
-    const status = statuses[file.path] || '待处理';
+    const fileKey = normalizeFilePath(file.path);
+    const status = statuses[fileKey] || '待处理';
     stats[status] = (stats[status] || 0) + 1;
   }
 
